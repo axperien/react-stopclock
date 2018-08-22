@@ -26,10 +26,13 @@
   },
   "dependencies": {
     "babel-preset-env": "^1.7.0",
+    "bootstrap": "^4.1.3",
     "moment": "^2.22.2",
     "npm": "^6.4.0",
+    "prop-types": "^15.6.2",
     "react": "^16.4.1",
     "react-datepicker": "^1.6.0",
-    "react-dom": "^16.4.1"
+    "react-dom": "^16.4.1",
+    "reactstrap": "^6.4.0"
   }
 }
