@@ -10,9 +10,18 @@ export default class TaskList extends React.Component {
     
         this.state = {
           filtered: ['none'],
-          sort: 'default'
+          sort: 'default',
+          data: this.props.data
         };
+
+        this.onDelete = this.onDelete.bind(this)
       }
+
+    onDelete (id) {
+      this.setState(prevState => ({
+        data: prevState.data.filter(item => item.id !== id)
+      }))
+    }
 
     handlerChangeFilter = (e) => {
         const value = e.target.value;
@@ -35,12 +44,11 @@ export default class TaskList extends React.Component {
     }
 
     render() {
-        const { data } = this.props;
-        const { filtered, sort } = this.state;
+        const { data, filtered, sort } = this.state;
 
         let filteredData = data.filter(item => 
-            (~filtered.indexOf(item.group) || (filtered.length === 1 && filtered[0] === 'none')));
-
+           (~filtered.indexOf(item.group) || (filtered.length === 1 && filtered[0] === 'none')));
+        
         if (sort !== 'default') {
             const sortable = filteredData.map((item, index) => 
                 ({index, date: new Date(item.date)}));
@@ -52,7 +60,7 @@ export default class TaskList extends React.Component {
             });
 
             filteredData = sortable.map(item => filteredData[item.index]);
-        }            
+        }    
 
         return (
             <div className="task-list">
@@ -116,13 +124,13 @@ export default class TaskList extends React.Component {
                 <Row>
                 {
                     filteredData.map((item, index) => {
-                        return <Task key={index} data={item}/>
+                        return <Task key={index} data={item} onDelete={id => this.onDelete(id)} />
                     })
                 }
                 </Row>
 
                 {
-                data.length ? <strong className={'task-list__count'}>Всего задач: {filteredData.length}</strong> : null
+                filteredData.length ? <strong className={'task-list__count'}>Всего задач: {filteredData.length}</strong> : null
                 }
             </div>
         )

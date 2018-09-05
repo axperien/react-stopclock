@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-
 import moment from 'moment';
 import { Button, CardBody, Card, CardTitle, CardSubtitle, Badge, Col, Modal, ModalHeader, ModalBody } from 'reactstrap';
 
@@ -16,7 +15,7 @@ const colorGroupBadge = {
 export default class Task extends React.Component {
     constructor() {
         super();
-        this.state = {
+        this.state = {            
             visible: false,
         }
     }
@@ -25,18 +24,19 @@ export default class Task extends React.Component {
         this.setState({ visible: !this.state.visible });
     }
 
-    deleteTask = () => {
-        console.log(this.props)
+    deleteTask = (e) => {
+        const id = e.target.getAttribute('data-id');
+        this.props.onDelete(id);
     }
 
     render() {
-        const { name, description, group, date } = this.props.data;
+        const { name, description, group, date, id } = this.props.data;
         const { visible } = this.state;
 
         return (
             <Col xs="6">
                 <Card style={{marginBottom: '20px'}}>
-                    <div className="close" onClick={this.deleteTask}>Удалить</div>
+                    <div className="close" data-id={id} onClick={this.deleteTask}>Удалить</div>
                     <CardBody>
                         <CardTitle>{name} <Badge color={colorGroupBadge[group]}>{group}</Badge></CardTitle>
 
