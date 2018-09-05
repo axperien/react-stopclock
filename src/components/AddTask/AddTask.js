@@ -3,6 +3,7 @@ import React from 'react';
 import { Form, Label, FormGroup, Button, Input, Modal, ModalHeader, ModalBody } from 'reactstrap';
 import moment from 'moment';
 import DatePicker from 'react-datepicker';
+import FormErrors from 'components/FormErrors';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import 'react-datepicker/dist/react-datepicker-cssmodules.css';
@@ -12,23 +13,43 @@ export default class AddTask extends React.Component {
         super(props);
 
         this.state = {
-            validate: false,
             name: '',
             description: '',
             date: null,
             group: '',
-            modalSuccess: false
+            modalSuccess: false,
+            formErrors: {name: ''},
+            nameValid: false,            
+            formValid: false,
+            data: this.props.data
         }
     }
 
     onChange = (e) => {
-        this.setState({ [e.target.name]: e.target.value });
-
-        const {name} = this.state;
-        const validateFlag = (name.length > 2) ? true : false;
-
-        this.setState({ validate: validateFlag });
+        const name = e.target.name;
+        const value = e.target.value;
+        this.setState({[name]: value}, 
+            () => { this.validateField(name, value) });
     }
+
+    validateField(fieldName, value) {
+        let fieldValidationErrors = this.state.formErrors;
+        let nameValid = this.state.emailValid;        
+      switch(fieldName) {
+          case 'name':
+            nameValid = value.length > 3;
+            fieldValidationErrors.name = nameValid ? '' : ' is length must be more 3';
+            break;
+          default:
+            break;
+        }
+        this.setState({formErrors: fieldValidationErrors,
+            nameValid: nameValid
+        }, this.validateForm);
+      }
+      validateForm() {
+        this.setState({formValid: this.state.nameValid});
+      }
 
     toggle = () => {
         this.setState({ modalSuccess: !this.state.modalSuccess });
@@ -41,32 +62,40 @@ export default class AddTask extends React.Component {
     handleSubmit = (e) => {
         e.preventDefault();
 
-        let { data } = this.props;
-        const {name, description, date, group, validate } = this.state;
-
-        if(validate) {
-            data.push({name, description, date, group});
-            this.setState({ modalSuccess: !this.state.modalSuccess});
+        const {name, description, date, group, formValid } = this.state;
+        const id = Math.random().toString(36).substr(2, 9);
+        
+        if(formValid) {
+            const newItem = {name, description, date, group, id}
+            this.props.onAdd(newItem);
+            console.log(1)
+            this.setState({ 
+                modalSuccess: !this.state.modalSuccess
+            });
             e.target.reset();
         }
     }
 
     render() {
-        const { validate, date, modalSuccess } = this.state;
+        const { formValid, date, modalSuccess, name, description, formErrors } = this.state;
         
         return (
             <div>
                 <h2 style={{margin: '30px 0px 30px'}}>Добавить задачу</h2>
 
+                <div className="panel panel-default" style={{color: 'red'}}>
+                    <FormErrors formErrors={formErrors} />
+                </div>
+
                 <Form onSubmit={this.handleSubmit}>
                     <FormGroup>
                         <Label>Название:</Label>
-                        <Input type="text" name="name" onChange={this.onChange} placeholder="Название задачи" />
+                        <Input type="text" name="name" value={name} onChange={this.onChange} placeholder="Название задачи" />
                     </FormGroup>
                     
                     <FormGroup>
                         <Label>Описание:</Label>
-                        <Input type="textarea" name="description" onChange={this.onChange} placeholder="Описание задачи" />
+                        <Input type="textarea" name="description" value={description} onChange={this.onChange} placeholder="Описание задачи" />
                     </FormGroup>
 
                     <FormGroup>
@@ -94,7 +123,7 @@ export default class AddTask extends React.Component {
                         />
                     </FormGroup>
 
-                    <Button color={validate ? 'success' : 'danger'}>Добавить</Button>
+                    <Button color={!formValid ? 'danger' : 'success'} disabled={!formValid}>Добавить</Button>
                 </Form>
 
                 <Modal isOpen={modalSuccess} toggle={this.toggle} centered={true}>
